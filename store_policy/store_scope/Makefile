@@ -8,7 +8,7 @@ NVCC       := $(CUDA_PATH)/bin/nvcc
 NCU        := $(CUDA_PATH)/bin/ncu
 
 # target
-TARGET     := store_wt
+TARGET     := store_scope
 
 # src
 SRC        := $(TARGET).cu
@@ -23,7 +23,7 @@ PROF_FILE  := $(TARGET)_$(GPU_MODE).ncu-rep
 ARCH       := sm_90
 
 # NVCC flags
-NVCC_FLAGS := -arch=$(ARCH) -O0
+NVCC_FLAGS := -std=c++17 -arch=$(ARCH) -O0 -I.
 
 # NCU flags
 NCU_FLAGS  := --set full --target-processes all
@@ -54,4 +54,4 @@ run: $(TARGET)
 	./$^
 
 clean:
-	rm -f $(TARGET) *.o *.ptx *.ncu-rep
+	rm -f $(TARGET) *.o $(TARGET).ptx $(TARGET).ncu-rep $(TARGET).sass

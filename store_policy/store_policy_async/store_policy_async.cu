@@ -59,7 +59,7 @@ __global__ void device_memcpy_kernel(int* dst, int* src) {
     __syncthreads();
 
     // 2. Initiate TMA transfer to copy global to shared memory.
-    if (threadIdx.x == 1) {
+    if (threadIdx.x == 0) {
         // 3a. cuda::memcpy_async arrives on the barrier and communicates
         //     how many bytes are expected to come in (the transaction count)
         cuda::memcpy_async(
@@ -99,8 +99,22 @@ __global__ void device_memcpy_kernel(int* dst, int* src) {
     } 
     //=========================================================TMA END ==================================================// 
     // __threadfence();
-        //__syncthreads();
-        
+    //__syncthreads();
+    if (idx == 0) {
+        // global load from src, global store to dst
+        // int dst0 = src[idx] + 1;
+        // int dst1 = src[idx+1] + 1 + 1;
+        // int dst2 = src[idx+2] + 1 + 2;
+        // int dst3 = src[idx+3] + 1 + 3;
+        // __stcg(&dst[idx+0], dst0);
+        // __stcg(&dst[idx+1], dst1);
+        // __stcg(&dst[idx+2], dst2);
+        // __stcg(&dst[idx+3], dst3);
+        dst[idx+0] = src[idx+0] + 1    ;
+        dst[idx+1] = src[idx+1] + 1 + 1;
+        dst[idx+2] = src[idx+2] + 1 + 2;
+        dst[idx+3] = src[idx+3] + 1 + 3;
+    }    
 
 }
 
