@@ -16,8 +16,8 @@ SRC        := $(TARGET).cu
 # PRO_FILE
 PROF_FILE  := $(TARGET).ncu-rep
 
-# arch, h100
-ARCH       := sm_90
+# arch, h100:sm_90, bx00:sm_100
+ARCH       ?= sm_90
 
 # NVCC flags
 NVCC_FLAGS := -arch=$(ARCH) -O0
