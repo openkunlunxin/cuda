@@ -54,4 +54,4 @@ run: $(TARGET)
 	./$^
 
 clean:
-	rm -f $(TARGET) *.o $(TARGET).ptx $(TARGET).ncu-rep $(TARGET).sass
+	rm -f $(TARGET) *.o $(TARGET).ptx $(TARGET)_$(GPU_MODE).ncu-rep $(TARGET).sass

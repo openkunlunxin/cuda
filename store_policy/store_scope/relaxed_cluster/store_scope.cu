@@ -20,12 +20,25 @@ __global__ void device_memst_kernel(int* dst, int* src, size_t N) {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx == 0) {
 		int tmp0 = 11;
+		/*
 		cuda_scope::store_cta(&dst[idx+0 ], tmp0);
 		cuda_scope::store_cluster(&dst[idx+32], tmp0);
 		cuda_scope::store_gpu(&dst[idx+1 ], tmp0);
 		cuda_scope::store_sys(&dst[idx+2 ], tmp0);
-		// dst[idx+0] = tmp0;
-		// dst[idx+32] = tmp0;
+		*/
+		cuda_scope::store_cluster_relaxed(&dst[idx+0 ], tmp0);
+		cuda_scope::store_cluster_relaxed(&dst[idx+32], tmp0);
+		cuda_scope::store_cluster_relaxed(&dst[idx+2 ], tmp0);
+		cuda_scope::store_cluster_relaxed(&dst[idx+3 ], tmp0);
+		
+		__syncthreads();
+                int src0 = dst[idx] + 1;
+                int src1 = dst[idx+1] + 1 + 1;
+                int src2 = dst[idx+2] + 1 + 2;
+                int src3 = dst[idx+3] + 1 + 3;
+		
+		dst[idx + 64] = src0 + src1 + src2 + src3;	
+
 		// dst[idx+64] = tmp0;
 		// dst[idx+96] = tmp0;
 		// dst[idx+128] = tmp0;
@@ -43,26 +56,6 @@ __global__ void device_memst_kernel(int* dst, int* src, size_t N) {
 		// dst[idx+480] = tmp0;
 		// dst[idx+512] = tmp0;
 		// dst[idx+2] = tmp0;
-    }
-}
-
-// device kernel: use global load and store
-__global__ void device_memst_1block_kernel(int* dst, int* src, size_t N) {
-    size_t idx         = blockIdx.x * blockDim.x + threadIdx.x;
-	int    needed_loop = N/(blockDim.x)      ;
-    if (idx < blockDim.x) {
-		for(int i=0; i<needed_loop; i++){
-			int tmp0 = threadIdx.x;
-			src[i * blockDim.x + threadIdx.x] = tmp0;
-		}
-		__syncthreads();
-		__threadfence_block();
-		for(int i=0; i<needed_loop; i++){
-			int tmp0;
-			tmp0 = src[i * blockDim.x + threadIdx.x];
-			dst[i * blockDim.x + threadIdx.x] = tmp0 ;
-			//__stcg(&dst[i * blockDim.x + threadIdx.x], tmp0);
-		}
     }
 }
 
