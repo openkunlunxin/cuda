@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cuda_runtime.h>
-#include "./mmio.h"
+#include "./mmio_ldst.h"
+#include "./scope_store.h"
 
 #define UNROLL_SIZE 16
 #define VEC_SIZE    4
@@ -20,10 +21,8 @@ __global__ void device_memst_kernel(int* dst, int* src, size_t N) {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx == 0) {
 		int tmp0 = 11;
-		cuda_scope::store_cta(&dst[idx+0 ], tmp0);
-		cuda_scope::store_cluster(&dst[idx+32], tmp0);
-		cuda_scope::store_gpu(&dst[idx+1 ], tmp0);
-		cuda_scope::store_sys(&dst[idx+2 ], tmp0);
+		mmio_ldst::store_mmio_sys(&dst[idx], tmp0);
+		mmio_ldst::store_mmio_sys(&dst[idx+1 ], tmp0);
 		// dst[idx+0] = tmp0;
 		// dst[idx+32] = tmp0;
 		// dst[idx+64] = tmp0;
