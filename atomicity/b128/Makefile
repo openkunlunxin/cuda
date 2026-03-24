@@ -8,19 +8,22 @@ NVCC       := $(CUDA_PATH)/bin/nvcc
 NCU        := $(CUDA_PATH)/bin/ncu
 
 # target
-TARGET     := cpasync
+TARGET     ?= atomicity
 
 # src
 SRC        := $(TARGET).cu
 
+# GPU MODE
+GPU_MODE   := h100
+
 # PRO_FILE
-PROF_FILE  := $(TARGET).ncu-rep
+PROF_FILE  := $(TARGET)_$(GPU_MODE).ncu-rep
 
 # arch, h100
 ARCH       ?= sm_90
 
 # NVCC flags
-NVCC_FLAGS := -arch=$(ARCH) -O3 -std=c++17
+NVCC_FLAGS := -std=c++17 -arch=$(ARCH) -O3 -I.
 
 # NCU flags
 NCU_FLAGS  := --set full --target-processes all
@@ -31,6 +34,8 @@ all: $(TARGET)
 
 ptx: $(TARGET).ptx
 
+sass: $(TARGET).sass
+
 prof_run: $(PROF_FILE)
 
 $(TARGET): $(SRC)
@@ -39,6 +44,9 @@ $(TARGET): $(SRC)
 $(TARGET).ptx: $(SRC)
 	$(NVCC) -ptx $(NVCC_FLAGS) $^ -o $@
 
+$(TARGET).sass: $(TARGET)
+	cuobjdump -sass $< > $@
+
 $(PROF_FILE): $(TARGET)
 	$(NCU) $(NCU_FLAGS) -o $@ ./$^
 
@@ -46,4 +54,4 @@ run: $(TARGET)
 	./$^
 
 clean:
-	rm -f $(TARGET) *.o *.ptx *.ncu-rep
+	rm -f $(TARGET) *.o $(TARGET).ptx $(TARGET).ncu-rep $(TARGET).sass
